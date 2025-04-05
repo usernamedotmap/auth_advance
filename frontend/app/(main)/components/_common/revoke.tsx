@@ -17,7 +17,7 @@ const RevokeMfa = () => {
         queryKey: ["mfa-user"],
       });
       toast.success("Success", {
-        description: response.message,
+        description: "Revoke MFA successfully",
         duration: 5000,
       });
     },
