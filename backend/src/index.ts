@@ -13,13 +13,10 @@ import sessionRoutes from './session/session.route';
 import { authenticateJWT } from './common/strategy/jwt.strategy';
 import mfaRoutes from './modules/mfa/mfa.route';
 
-import next from 'next';
-import path from 'path'
 
 const dev = process.env.NODE_ENV !== 'production';
 
-const nextApp = next({ dev,  dir: path.join(__dirname, '../../frontend') })
-const nextHandler = nextApp.getRequestHandler()
+
 
 
 const app = express();
@@ -49,11 +46,6 @@ app.use(`${BASE_PATH}/mfa`, mfaRoutes)
 app.use(`${BASE_PATH}/session`, authenticateJWT, sessionRoutes)
 app.use(errorHandler);
 
-nextApp.prepare().then(() => {
-    app.all('*', (req, res) => {
-        return nextHandler(req, res)
-    });
-});
 
 
 
