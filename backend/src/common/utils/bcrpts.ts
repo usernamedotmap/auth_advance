@@ -1,5 +1,5 @@
 
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const hashedValue = async (value: string, saltRounds: number = 10) => 
     await bcrypt.hash(value, saltRounds);
