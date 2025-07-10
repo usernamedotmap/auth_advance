@@ -13,6 +13,7 @@ import { sendEmail } from "../../mailers/templates/mailer";
 import { passwordResetTemplate, verifyEmailTemplate } from "../../mailers/templates/template";
 import { HTTPSTATUS } from "../../config/http";
 import { hashedValue } from "../../common/utils/bcrpts";
+// import { sendingEmail } from "../../mailers/mailerSend";
 
 export class AuthService {
 
@@ -44,11 +45,18 @@ export class AuthService {
         await sendEmail({
             ...verifyEmailTemplate(verificationUrl),
         });
- 
+
+        // try {
+        //     await sendingEmail({ to: email, ...verifyEmailTemplate(verificationUrl) });
+        // } catch (err) {
+        //     console.warn('Email sending failed:', err);
+        // }
+
+
         return {
             user: newUser,
 
-        };
+        };  
     };
 
     public async login(loginData: LoginDto) {
@@ -222,25 +230,25 @@ export class AuthService {
 
         const resetLink = `${config.APP_ORIGIN}/reset-password?code=${validCode.code}&exp=${expiresAt.getTime()}`;
 
-        const { data, error } = await sendEmail({
+        const {data, error } = await sendEmail({
             ...passwordResetTemplate(resetLink),
         });
 
-        if (error && error instanceof Error) {
-            throw new IntervalServerError(` ${error.message}`);
-        };
+        if (error) {
+            throw new BadRequestException("Failed to send email");
+        }
 
         return {
             url: resetLink,
-            emailId: data?.id
+            emailId: data?.id,
         };
     };
 
-    public async resetPassword({password, verificationCode}: ResetPasswordDto) {
+    public async resetPassword({ password, verificationCode }: ResetPasswordDto) {
         const validCode = await VerificationCodeModel.findOne({
             code: verificationCode,
             type: VerificationEnum.PASSWORD_RESET,
-            expiredAt: {$gt: Date.now()},
+            expiredAt: { $gt: Date.now() },
         });
 
         if (!validCode) {
@@ -249,7 +257,7 @@ export class AuthService {
 
         const hashedPassword = await hashedValue(password);
 
-        const updatedUser = await UserModel.findByIdAndUpdate(validCode.userId,{
+        const updatedUser = await UserModel.findByIdAndUpdate(validCode.userId, {
             password: hashedPassword
         }, { new: true });
 
