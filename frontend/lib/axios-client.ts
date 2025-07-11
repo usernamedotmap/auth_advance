@@ -4,7 +4,7 @@ import axios from 'axios';
 const options = {
     baseURL: process.env.NEXT_PUBLIC_BASE_URL,
     withCredentials: true,
-    timeout: 10000,
+    timeout: 20000,
 }
 
 export const API = axios.create(options);
